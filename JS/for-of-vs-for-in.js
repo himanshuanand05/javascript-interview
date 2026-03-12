@@ -62,7 +62,7 @@ fruits.anotherProp = 42;
 
 console.log("\nArray with custom properties:", fruits);
 
-console.log("\n--- for...of (only array elements) ---");
+console.log("\n--- for...of (only array elements) ---"); 
 for (let fruit of fruits) {
   console.log("Fruit:", fruit);  // Only 'apple', 'banana', 'cherry'
   // Does NOT iterate over customProp or anotherProp

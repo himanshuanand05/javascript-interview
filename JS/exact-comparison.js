@@ -142,3 +142,94 @@ console.log("  - Object.is(NaN, NaN) = true (vs === which is false)");
 console.log("  - Object.is(+0, -0) = false (vs === which is true)");
 console.log("  - Use when you need to distinguish +0/-0 or check NaN");
 
+/**
+ * Number.isNaN vs isNaN vs value != value
+ *
+ * Key Differences:
+ *
+ * Number.isNaN(value):
+ * - Returns true ONLY if value is exactly NaN
+ * - No type coercion - does not convert the value first
+ * - Most precise: "hello", undefined, {} → false
+ *
+ * isNaN(value):
+ * - Coerces value to Number first (ToNumber), then checks if result is NaN
+ * - "hello" → NaN → true
+ * - "" → 0 → false
+ * - undefined → NaN → true
+ *
+ * value != value:
+ * - NaN is the ONLY primitive value in JS that is not equal to itself
+ * - No coercion on LHS - same semantics as Number.isNaN
+ * - Historical "polyfill" before Number.isNaN (ES6)
+ */
+
+console.log("=== Number.isNaN vs isNaN vs value != value ===\n");
+
+// Test values
+const testValues = [
+  NaN,
+  Infinity,
+  -Infinity,
+  "hello",
+  "",
+  "  ",
+  "123",
+  123,
+  null,
+  undefined,
+  true,
+  false,
+  {},
+  [],
+];
+
+// Header
+const pad = (str, len = 20) => String(str).padEnd(len);
+console.log(pad("Value") + pad("Number.isNaN") + pad("isNaN()") + pad("val != val"));
+console.log("-".repeat(70));
+
+// Run comparison
+function displayValue(v) {
+  if (v === "") return "''";
+  if (v === "  ") return "'  '";
+  if (Number.isNaN(v)) return "NaN";
+  if (v === Infinity) return "Infinity";
+  if (v === -Infinity) return "-Infinity";
+  return JSON.stringify(v);
+}
+
+testValues.forEach((value) => {
+  const display = displayValue(value);
+  const numIsNaN = Number.isNaN(value);
+  const globalIsNaN = isNaN(value);
+  const notEqualToSelf = value != value;
+
+  console.log(
+    pad(display, 22) + pad(numIsNaN) + pad(globalIsNaN) + pad(notEqualToSelf)
+  );
+});
+
+// ===== Key Insight: Why value != value works =====
+console.log("\n=== Why value != value works ===");
+console.log("NaN == NaN:", NaN == NaN);   // false
+console.log("NaN === NaN:", NaN === NaN); // false
+console.log("NaN != NaN:", NaN != NaN);   // true
+console.log("NaN !== NaN:", NaN !== NaN); // true
+console.log("→ NaN is the only value in JavaScript not equal to itself");
+
+// ===== The coercion difference =====
+console.log("\n=== The coercion difference ===");
+console.log('isNaN("hello"):', isNaN("hello")); // true - "hello" coerces to NaN
+console.log('Number.isNaN("hello"):', Number.isNaN("hello")); // false - "hello" is not NaN
+console.log('"hello" != "hello":', "hello" != "hello"); // false - strings equal themselves
+
+console.log('\nisNaN(undefined):', isNaN(undefined)); // true
+console.log('Number.isNaN(undefined):', Number.isNaN(undefined)); // false
+console.log('undefined != undefined:', undefined != undefined); // false
+
+// ===== Practical recommendation =====
+console.log("\n=== When to use which ===");
+console.log("• Number.isNaN() - Preferred (ES6+), no surprises, most precise");
+console.log("• value != value  - Same as Number.isNaN, legacy/polyfill pattern");
+console.log("• isNaN()         - Use only when you WANT coercion (e.g. check if parse will fail)");
